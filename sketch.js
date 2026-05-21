@@ -1,146 +1,120 @@
 // Data about American concerns regarding data use
 const data = [
-  { category: "Concerned about company use of data", percent: 81, color: [220, 53, 69] },
-  { category: "Concerned about government use of data", percent: 71, color: [220, 53, 69] },
-  { category: "Little/no control over company data use", percent: 73, color: [255, 193, 7] },
-  { category: "Little/no control over government data use", percent: 79, color: [255, 193, 7] },
-  { category: "Little/no understanding of company data use", percent: 67, color: [33, 150, 243] },
-  { category: "Little/no understanding of government data use", percent: 77, color: [33, 150, 243] }
+  { category: "Company use of data", percent: 81, type: "Concerned" },
+  { category: "Government use of data", percent: 71, type: "Concerned" },
+  { category: "Company data use", percent: 73, type: "Control" },
+  { category: "Government data use", percent: 79, type: "Control" },
+  { category: "Company data use", percent: 67, type: "Understanding" },
+  { category: "Government data use", percent: 77, type: "Understanding" }
 ];
 
-let barHeight = 50;
-let padding = 60;
+const typeColors = {
+  "Concerned": [220, 53, 69],
+  "Control": [255, 193, 7],
+  "Understanding": [33, 150, 243]
+};
+
+const typeLabels = {
+  "Concerned": "Concerned about...",
+  "Control": "Little/no control over...",
+  "Understanding": "Little/no understanding of..."
+};
+
 let hoveredBar = -1;
 
 function setup() {
-  createCanvas(1000, 600);
+  createCanvas(900, 550);
 }
 
 function draw() {
-  background(245);
+  background(255);
   
   // Title
-  fill(0);
-  textSize(28);
+  fill(20);
+  textSize(32);
   textAlign(LEFT);
   textStyle(BOLD);
-  text("American Concerns About Data Use", padding, 40);
-  
-  // Subtitle
-  textSize(12);
-  textStyle(NORMAL);
-  fill(100);
-  text("Percentage of Americans", padding, 65);
+  text("American Data Privacy Concerns", 40, 50);
   
   // Draw bars
   drawBars();
-  
-  // Draw legend
-  drawLegend();
-}
-
-function drawBars() {
-  let startY = 100;
-  let maxBarWidth = width - padding * 2 - 100;
-  
-  for (let i = 0; i < data.length; i++) {
-    let y = startY + i * (barHeight + 10);
-    let barWidth = (data[i].percent / 100) * maxBarWidth;
-    
-    // Check if mouse is over this bar
-    let isHovered = (mouseY > y && mouseY < y + barHeight && 
-                     mouseX > padding + 250 && mouseX < padding + 250 + barWidth);
-    
-    if (isHovered) {
-      hoveredBar = i;
-    }
-    
-    // Draw bar
-    let [r, g, b] = data[i].color;
-    if (isHovered) {
-      fill(r - 20, g - 20, b - 20); // Darker on hover
-      stroke(0);
-      strokeWeight(2);
-    } else {
-      fill(r, g, b);
-      stroke(0);
-      strokeWeight(1);
-    }
-    
-    rect(padding + 250, y, barWidth, barHeight);
-    
-    // Draw percentage text on bar
-    fill(255);
-    textSize(14);
-    textAlign(LEFT);
-    textStyle(BOLD);
-    text(data[i].percent + "%", padding + 260 + barWidth, y + barHeight / 2 + 5);
-    
-    // Draw category label
-    fill(0);
-    textSize(12);
-    textAlign(RIGHT);
-    textStyle(NORMAL);
-    text(data[i].category, padding + 240, y + barHeight / 2 + 5);
-  }
   
   // Draw tooltip if hovering
   if (hoveredBar >= 0) {
     drawTooltip();
   }
   
-  hoveredBar = -1; // Reset for next frame
+  hoveredBar = -1;
+}
+
+function drawBars() {
+  let startY = 120;
+  let barSpacing = 80;
+  let maxBarWidth = 600;
+  let padding = 40;
+  
+  for (let i = 0; i < data.length; i++) {
+    let y = startY + i * barSpacing;
+    let barWidth = (data[i].percent / 100) * maxBarWidth;
+    let barX = padding + 150;
+    
+    // Check if mouse is over this bar
+    let isHovered = (mouseY > y - 15 && mouseY < y + 20 && 
+                     mouseX > barX && mouseX < barX + barWidth);
+    
+    if (isHovered) {
+      hoveredBar = i;
+    }
+    
+    // Draw bar
+    let color = typeColors[data[i].type];
+    if (isHovered) {
+      fill(color[0] - 30, color[1] - 30, color[2] - 30);
+      stroke(0);
+      strokeWeight(2);
+    } else {
+      fill(color[0], color[1], color[2]);
+      noStroke();
+    }
+    
+    rect(barX, y - 15, barWidth, 30, 4);
+    
+    // Draw percentage text on bar
+    fill(255);
+    textSize(13);
+    textAlign(LEFT);
+    textStyle(BOLD);
+    text(data[i].percent + "%", barX + barWidth + 12, y + 5);
+    
+    // Draw category label
+    fill(80);
+    textSize(12);
+    textAlign(RIGHT);
+    textStyle(NORMAL);
+    text(data[i].category, barX - 15, y + 5);
+  }
 }
 
 function drawTooltip() {
-  let tooltipText = data[hoveredBar].category + ": " + data[hoveredBar].percent + "%";
+  let item = data[hoveredBar];
+  let tooltipText = typeLabels[item.type] + " " + item.category + ": " + item.percent + "%";
   
-  textSize(13);
+  textSize(12);
   textAlign(LEFT);
-  textStyle(BOLD);
+  textStyle(NORMAL);
   
   let tooltipWidth = textWidth(tooltipText) + 20;
-  let tooltipHeight = 30;
-  let tooltipX = mouseX + 10;
-  let tooltipY = mouseY - 35;
+  let tooltipHeight = 28;
+  let tooltipX = mouseX + 12;
+  let tooltipY = mouseY - 40;
   
   // Draw tooltip box
-  fill(0);
-  stroke(255);
-  strokeWeight(2);
-  rect(tooltipX, tooltipY, tooltipWidth, tooltipHeight, 5);
+  fill(50);
+  stroke(200);
+  strokeWeight(1);
+  rect(tooltipX, tooltipY, tooltipWidth, tooltipHeight, 4);
   
   // Draw tooltip text
   fill(255);
-  text(tooltipText, tooltipX + 10, tooltipY + 20);
-}
-
-function drawLegend() {
-  let legendY = height - 80;
-  let legendX = padding;
-  
-  fill(0);
-  textSize(12);
-  textStyle(BOLD);
-  text("Categories:", legendX, legendY);
-  
-  // Company concerns
-  fill(220, 53, 69);
-  rect(legendX, legendY + 15, 20, 20);
-  fill(0);
-  textSize(11);
-  textStyle(NORMAL);
-  text("Company Data", legendX + 30, legendY + 30);
-  
-  // Control concerns
-  fill(255, 193, 7);
-  rect(legendX + 250, legendY + 15, 20, 20);
-  fill(0);
-  text("Control Over Data", legendX + 280, legendY + 30);
-  
-  // Understanding concerns
-  fill(33, 150, 243);
-  rect(legendX + 520, legendY + 15, 20, 20);
-  fill(0);
-  text("Understanding of Data", legendX + 550, legendY + 30);
+  text(tooltipText, tooltipX + 10, tooltipY + 19);
 }
